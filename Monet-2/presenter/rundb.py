@@ -14,7 +14,8 @@
 import requests
 from dateutil import tz
 from flask import jsonify, render_template, request
-from onlinedq.monitoringhub import cache
+from presenter.cache import cache
+
 import logging
 import dqdb
 from flask.wrappers import Response

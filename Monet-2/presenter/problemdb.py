@@ -17,7 +17,8 @@ from presenter.rundb import get_rundb_info
 from presenter.blueprints._auth import get_info
 import requests
 import datetime
-from onlinedq.monitoringhub import cache
+from presenter.cache import cache
+
 
 
 class lb_problemdb:
