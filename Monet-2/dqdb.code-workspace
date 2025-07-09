@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "dqdb",
+			"path": "../../Pyprojects/monet_data/dqdb-master 2/dqdb"
+		},
+		{
+			"name": "Monet-2",
+			"path": "."
+		}
+	],
+	"settings": {}
+}

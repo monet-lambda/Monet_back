@@ -1,0 +1,75 @@
+{% from "_helpers.html" import stylesheet_tag, javascript_tag, list_link_tag, javascript_module_tag %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Monet</title>
+  <!--
+    Favicon from the Fugue set, released under Creative Commons Attribution 3.0 License.
+    http://p.yusukekamiyamane.com/
+  -->
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {% assets "js_layout" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+  {% assets "css_layout" %}
+  <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+  {% endassets %}
+
+
+  {% block stylesheets %}{% endblock %}
+  {% block htmlHeader %}{% endblock %}
+  {% block javascripts %}{% endblock %}
+
+
+</head>
+<body>
+   <div class="navbar navbar-fixed-top navbar-custom" role="navigation" id="top_bar">
+    {% block namebar %}
+    <div class="navbar-left">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{PROJECTNAME}} <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            {% for proj in config.PROJECTS %}
+              <li><a href="/{{proj.url}}/">{{proj.name}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+
+    </div>
+
+
+
+    {% endblock %}
+    {% block toolbar %}{% endblock %}
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <sidebar class="col-sm-3 col-md-2 sidebar" id="sidebar">
+        {% block logged %}
+            <span class="inline">Hello, {{FULLNAME}}</span>
+            <a href="/logout" class="btn btn-default btn-xs " role="button">Log out</a>
+         {% endblock %}
+
+        <!--<ul class="nav nav-sidebar">-->{% block navsidebar %}{% endblock %}<!--/ul>-->
+      </sidebar>
+      <div id="maincontainer">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" id="main">
+          {% block body %}{% endblock %}
+        </div>
+      </div>
+      {% block maincontainer %}{% endblock %}
+    </div>
+  </div>
+
+
+</body>
+</html>

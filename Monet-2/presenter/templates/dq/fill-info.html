@@ -1,0 +1,8 @@
+<table style="width: 300px">
+	<tr><td><b>Fill Number</b></td> <td id="rundb-run-number">{{fill_id}}</td></tr>
+	<tr><td><b>Magnet</b></td>     <td>{{magnetState}}</td></tr>
+	<tr><td><b>Lumi</b></td>       <td>{{'%0.2f'| format(lumi_logged|float)}} pb<sup>-1</sup></td></tr>
+	<tr><td><b>Start time</b></td> <td>{{start_date}}</td></tr>
+	<tr><td><b>End time</b></td>   <td>{{timestamp}}</td></tr>
+	<tr><td><b>Link to rundb</b></td> <td><a href="https://lbrundb.cern.ch/rundb/fill/{{fill_id}}/" target="_blank">{{fill_id}}</a></td>   </tr>
+</table>

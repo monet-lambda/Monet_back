@@ -1,0 +1,59 @@
+<?--############################################################################
+# (c) Copyright 2000-2021 CERN for the benefit of the LHCb Collaboration      #
+#                                                                             #
+# This software is distributed under the terms of the GNU General Public      #
+# Licence version 3 (GPL Version 3), copied verbatim in the file "COPYING".   #
+#                                                                             #
+# In applying this licence, CERN does not waive the privileges and immunities #
+# granted to it by virtue of its status as an Intergovernmental Organization  #
+# or submit itself to any jurisdiction.                                       #
+###############################################################################--/>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    {% from "_helpers.html" import stylesheet_tag %}
+    {{ stylesheet_tag('external/bootstrap-4.6.2/css/bootstrap.min' ) }}
+
+    <title>Monet</title>
+
+    <style type="text/css">
+      .my-btn-offline_dq{ background: #2F973C; }
+      .my-btn-online_dq{ background: #185CBA; }
+      .my-btn-trends{ background: #C2903D; }
+      .my-btn-sim_dq{ background: #BA4918; }
+      .my-btn-history_dq{ background: #68158e; }
+      .my-btn-page_documentation{ background: #3ac6d9; }
+      .monet-hello { font-size: 96px; font-weight: 800; }
+      a:hover { text-decoration: none; }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row mb-5">
+        <h1 class="monet-hello">Welcome to Monet!</h1>
+      </div>
+
+      <div class="row">
+        {% for bp in bplist %}
+          <div class="col-md-6 p-3" style="height: 30vh">
+            <a href="/{{bp.url}}">
+              <div class="card w-100 h-100 my-btn-{{bp.url}} text-white">
+                <div class="card-body">
+                  <h3 class="card-title font-weight-bold">{{bp.name}}</h3>
+                  <p class="card-text">{{bp.description}}</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </body>
+</html>

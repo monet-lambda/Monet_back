@@ -1,0 +1,36 @@
+FROM gitlab-registry.cern.ch/lhcb/monet/monet-base:alma9-root
+WORKDIR /app
+RUN curl -LO https://github.com/DIRACGrid/DIRACOS2/releases/latest/download/DIRACOS-Linux-x86_64.sh
+RUN bash DIRACOS-Linux-x86_64.sh
+ENV DIRACOS="/app/diracos"
+ENV CONDA_SHLVL="1"
+ENV CONDA_PROMPT_MODIFIER="(base)"
+ENV GSETTINGS_SCHEMA_DIR_CONDA_BACKUP=
+ENV X509_CERT_DIR="/etc/grid-security/certificates"
+ENV X509_VOMSES="/etc/vomses"
+ENV PYTHONWARNINGS="ignore"
+ENV PATHTMP="$PATH"
+ENV PATH="/app/diracos/bin:/app/diracos/condabin:/usr/sue/sbin:/usr/sue/bin:/usr/local/bin:${PATH}"
+ENV GSETTINGS_SCHEMA_DIR="/app/diracos/share/glib-2.0/schemas"
+ENV XML_CATALOG_FILES="file:///app/diracos/etc/xml/catalog file:///etc/xml/catalog"
+ENV CONDOR_CONFIG="/app/diracos/etc/condor/condor_config"
+ENV CONDA_PREFIX="/app/diracos"
+ENV MAMBA_ROOT_PREFIX="/app/diracos"
+ENV DAVIX_USE_LIBCURL="1"
+ENV X509_VOMS_DIR="/etc/grid-security/vomsdir"
+ENV DAVIX_DISABLE_REDIRECT_CACHING="1"
+ENV SHLVL="1"
+ENV CONDA_BACKUP_CONDOR_CONFIG="empty"
+ENV CONDA_DEFAULT_ENV="base"
+RUN dnf install -y swig boost
+RUN source diracos/diracosrc
+RUN pip3 install --pre LHCbDIRAC
+ENV PATH="$PATHTMP:/app/diracos/bin:/app/diracos/condabin:/usr/sue/sbin:/usr/sue/bin:/usr/local/bin"
+COPY ./dirac.cfg .
+COPY ./dirac.cfg /app/diracos/etc/dirac.cfg
+ENV DIRACSYSCONFIG=/app/dirac.cfg
+RUN dnf install -y https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el9-release-latest.rpm
+RUN dnf install -y osg-ca-certs fetch-crl
+RUN rm -rf /app/diracos/etc/grid-security
+RUN ln -s /etc/grid-security /app/diracos/etc/grid-security
+RUN fetch-crl -q; exit 0

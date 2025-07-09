@@ -1,0 +1,29 @@
+<table style="width: 300px">
+	<tr><td><b>Run Number</b></td> <td id="rundb-run-number">{{runid}}</td></tr>
+	<tr><td><b>Partition</b></td>     <td>{{partitionname}}</td></tr>
+	<tr><td><b>Detectors</b></td>     <td>{{partitionid}}</td></tr>
+	<tr><td><b>Activity</b></td>     <td>{{runtype}}</td></tr>
+	<tr><td><b>Data Quality</b></td>   <td id="runinfo-flag">{{flag}}</td></tr>
+	<tr><td><b>Magnet</b></td>     <td>{{magnetState}}</td></tr>
+	<tr><td><b>Avg. &mu;</b></td>  <td>{{'%0.2f'| format(avMu|float)}}</td></tr>
+	<tr><td><b>Lumi</b></td>       <td>{{'%0.2f'| format(endlumi|float)}} pb<sup>-1</sup></td></tr>
+	<tr><td><b>Fill id</b></td>    <td>{{fillid}}</td></tr>
+	<tr><td><b>Start time</b></td> <td>{{starttime}}</td></tr>
+	<tr><td><b>End time</b></td>   <td>{{endtime}}</td></tr>
+	<tr><td><b>State</b></td>   <td>{{state}}</td></tr>
+	<tr><td><b>Destination</b></td>   <td>{{destination}}</td></tr>
+	<tr><td><b>SMOG</b></td>   <td>{{SMOG}}</td></tr>
+	<tr><td><b>Link to rundb</b></td> <td><a href="https://lbrundb.cern.ch/rundb/run/{{runid}}/" target="_blank">{{runid}}</a></td>   </tr>
+</table>
+{% if system_flags %}
+	<hr>
+	<b>Extra DQ flags set:</b>
+	<table style="width: 300px">
+		{% for key in system_flags %}
+			<tr><td>&bull; {{key}}</td></tr>
+		{% endfor %}
+	</table>
+{% else %}
+	<hr>
+	<b>No extra DQ flag set.</b>
+{% endif %}

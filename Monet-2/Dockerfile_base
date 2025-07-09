@@ -1,0 +1,55 @@
+FROM cern/alma9-base:latest
+RUN mkdir /app
+WORKDIR /app
+RUN dnf install -y gcc-toolset-13 openssl openssl-devel bzip2-devel libffi-devel zlib-devel make cmake3 gcc-toolset-13-gcc-c++
+RUN dnf install -y wget sqlite-devel
+ENV PATH="/opt/rh/gcc-toolset-13/root/usr/bin:$PATH"
+ENV MANPATH="/opt/rh/gcc-toolset-13/root/usr/share/man:$MANPATH"
+ENV INFOPATH="/opt/rh/gcc-toolset-13/root/usr/share/info:$INFOPATH"
+ENV PCP_DIR="/opt/rh/gcc-toolset-13/root"
+ENV LD_LIBRARY_PATH="/opt/rh/gcc-toolset-13/root/usr/lib64:/opt/rh/gcc-toolset-13/root/usr/lib:/opt/rh/gcc-toolset-13/root/usr/lib64/dyninst:/opt/rh/gcc-toolset-13/root/usr/lib/dyninst:$LD_LIBRARY_PATH"
+RUN wget https://www.python.org/ftp/python/3.12.9/Python-3.12.9.tgz 
+RUN tar xzf Python-3.12.9.tgz
+WORKDIR /app/Python-3.12.9 
+RUN ./configure --enable-shared --enable-optimizations --enable-loadable-sqlite-extensions 
+RUN make altinstall
+ENV PATH="/usr/local/bin:$PATH"
+ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3
+RUN ln -s /usr/local/bin/pip3.12 /usr/local/bin/pip3
+RUN ln -s /usr/local/bin/python3.12-config /usr/local/bin/python3-config
+RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python
+RUN ln -s /usr/local/bin/pip3.12 /usr/local/bin/pip
+RUN ln -s /usr/local/bin/python3.12-config /usr/local/bin/python-config
+RUN ldconfig /usr/local/lib
+WORKDIR /app
+RUN rm -rf Python-3.12.9
+RUN rm -rf Python-3.12.9.tgz
+RUN wget https://root.cern/download/root_v6.32.10.source.tar.gz
+RUN tar -zxvf root_v6.32.10.source.tar.gz
+RUN rm root_v6.32.10.source.tar.gz
+COPY requirements.txt requirements.txt
+RUN rm -rf /usr/include/python2.7
+RUN rm -rf /usr/include/python3m
+RUN pip3 install --upgrade pip
+RUN dnf install -y which libXft-devel libXpm-devel libX11-devel
+RUN dnf install -y libXext-devel
+RUN dnf install -y binutils openssl-devel git
+RUN dnf install -y epel-release
+RUN dnf install -y xrootd-devel xrootd-client-devel
+RUN mkdir roottemp
+WORKDIR /app/roottemp
+RUN cmake3 -D cudnn=OFF -D clad=OFF -D dataframe=OFF -D davix=OFF -D fftw3=OFF -D fitsio=OFF -D gdml=OFF -D gfal=OFF -D http=OFF -D imt=OFF -D mathmore=OFF -D mlp=OFF -D mysql=OFF -D opengl=OFF -D oracle=OFF -D pgsql=OFF -D pythia6=OFF -D pythia8=OFF -D roofit=OFF -D root7=OFF -D spectrum=OFF -D sqlite=OFF -D ssl=OFF -D tmva-cpu=OFF -D tmva=OFF -D tmva-pymva=OFF -D webgui=OFF -D x11=OFF -D xml=OFF -D xrootd=ON ../root-6.32.10
+RUN cmake3 --build . -- -j 16
+WORKDIR /app
+RUN rm -rf root_v6.32.10
+RUN mkdir root
+WORKDIR /app/root
+RUN cp -r /app/roottemp/bin .
+RUN cp -r /app/roottemp/lib .
+RUN cp -r /app/roottemp/include . 
+RUN cp -r /app/roottemp/etc .
+WORKDIR /app
+RUN rm -rf roottemp
+RUN dnf -y install mesa-libGLU mesa-libGL libglvnd-opengl
+RUN pip3 install -r requirements.txt

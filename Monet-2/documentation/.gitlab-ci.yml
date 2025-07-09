@@ -1,0 +1,17 @@
+stages:
+  - build
+  - test
+  - deply
+
+pages:
+  image: python:3.11-bullseye
+  stage: build
+  script:
+  - pip install sphinx sphinx-autobuild sphinx_rtd_theme
+  - make html
+  - mv ./build/html ./public
+  artifacts:
+    paths:
+    - public
+  only:
+  - master

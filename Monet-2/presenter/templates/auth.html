@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block namebar %}
+{% endblock %}
+
+
+{% block pageheader %}Please Login{% endblock %}
+{% block body %}
+  Welcome to the {{ PROJECTNAME }}  pages! You need to be logged in to view the histograms.
+
+                <form action="/login" method="get">
+                <input type="submit" value="Log in">
+                </form>
+ 
+{% endblock %}
+{% block logged %}
+{% endblock %}
+{% block toolbar %}
+    <div class="container-fluid">
+
+        <span class="navbar-left">
+              <p class="navbar-text"> {{ PROJECTNAME }} </p>
+        </span>
+     </div>
+{% endblock %}

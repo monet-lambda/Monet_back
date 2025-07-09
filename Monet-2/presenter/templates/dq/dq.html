@@ -1,0 +1,674 @@
+<?--############################################################################
+# (c) Copyright 2000-2021 CERN for the benefit of the LHCb Collaboration      #
+#                                                                             #
+# This software is distributed under the terms of the GNU General Public      #
+# Licence version 3 (GPL Version 3), copied verbatim in the file "COPYING".   #
+#                                                                             #
+# In applying this licence, CERN does not waive the privileges and immunities #
+# granted to it by virtue of its status as an Intergovernmental Organization  #
+# or submit itself to any jurisdiction.                                       #
+###############################################################################--/>
+{% extends "layout.html" %} {% block htmlHeader %}
+<style>
+.dropdown-menu {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.popover {
+    max-width: 30%;
+}
+</style>
+
+{% assets "css_all" %}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+{% endassets %}
+
+<!-- JQuery UI (custom-built only for draggable) -->
+
+{% if PROJECTNAME == "Offline DQM" %}
+    {% assets "css_offline_dq" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    {% assets "js_offline_dq_modules" %}
+        <script type="module" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% elif PROJECTNAME == "Online DQM" %}
+    {% assets "css_online_dq" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    {% assets "js_online_dq_modules" %}
+        <script type="module" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% elif PROJECTNAME == "SimDQ" %}
+    {% assets "css_sim_dq" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    {% assets "js_sim_dq_modules" %}
+        <script type="module" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% elif PROJECTNAME == "History Mode" %}
+    {% assets "css_history_dq" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    {% assets "js_history_dq_modules" %}
+        <script type="module" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% elif PROJECTNAME == "DQ Trends" %}
+    {% assets "css_trend_dq" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    {% assets "js_trend_dq_modules" %}
+        <script type="module" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% elif PROJECTNAME == "Page Documentation" %}
+    {% assets "css_documentation_page" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    {% assets "js_page_documentation_modules" %}
+        <script type="module" src="{{ ASSET_URL }}"></script>
+    {% endassets %}      
+{% endif %}
+
+{% assets "js_common" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% assets asset_name %}
+<script type="module" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+
+<script type="text/javascript">
+    var filename = "";
+    var reference_filename = "";
+    var pageNormallyReadFromDBFlag = {{ LOAD_FROM_DB_FLAG }};
+    var highlight_histo = null;
+</script>
+
+{% assets asset_name %}
+<script type="module">
+    import {page_init} from "{{ ASSET_URL }}";
+    page_init();
+    import {showPrevDashboard} from "{{ ASSET_URL }}";        
+</script>
+{% endassets %}
+
+{% if PROJECTNAME == "Page Documentation" %}
+{% assets asset_name %}
+<script type="module">
+    import { save_as_pdf } from "{{ ASSET_URL }}";
+    window.clickHandler= save_as_pdf;
+</script>
+{% endassets %}
+{% endif %}
+
+
+{% endblock %}
+
+{% block toolbar %}
+
+<div class="container-fluid">
+    <span class="navbar-right">
+
+{% if PROJECTNAME == "Online DQM" or PROJECTNAME == "History Mode" %}
+<form class="navbar-form navbar-left">
+    <select id="partition-field" class="form-control">
+    {% for partition in partitions %}
+        <option {% if partition == selected_partition %}selected="selected"{% endif %}>{{partition}}</option>
+    {% endfor %}
+    </select>
+
+    {% if PROJECTNAME == "History Mode" %}
+
+        <select id="source-type-field" class="form-control btn btn-default dropdown-toggle">
+            <option selected="selected" >Run</option>
+            <option>Fill</option>
+            <option>Interval</option>
+        </select>
+    {% endif %}
+</form>
+{% endif %}
+
+{% if PROJECTNAME != "Online DQM" and PROJECTNAME != "SimDQ" and PROJECTNAME != "DQ Trends" and PROJECTNAME != "Page Documentation" %}
+<span class="navbar-form navbar-left">
+    <div class="input-group">
+        <!---->
+
+        <span class="input-group-btn btn-group" role="group">
+
+            {% if PROJECTNAME in ["Offline DQM"] %}
+            <button title="Previous unchecked run" id="decreaseUncheckedRunNmbrButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-backward"></span></button>
+            {% endif %}
+
+            {% if PROJECTNAME in ["Offline DQM"] %}
+            <button title="Previous run" id="decreaseMigratedRunNmbrButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-left"></span></button>
+            {% else %}
+            <button title="Previous run" id="decreaseRunNmbrButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-left"></span></button>
+            {% endif %}
+
+            {% if PROJECTNAME == "History Mode" %}
+                    <input name="interval-begin" title="Start point of the interval" type="text" style="display:none; width:173px" value="{{ INTERVAL_BEGIN }}" class="history_interval form-control" id="interval-begin">
+                    <input title="Size of the interval" name="interval-size" id="interval-size" type="text" style="display:none; width:74px" value="{{ INTERVAL_SIZE }}" class="history_interval form-control">
+
+            {% endif %}
+            <input type="text" id="runNmbrTextfield" class="form-control" value="{{ RUN_NMBR }}" style="width:120px">
+
+            {% if PROJECTNAME in ["Offline DQM"] %}
+            <button title="Next run" id="increaseMigratedRunNmbrButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-right"></span></button>
+            {% else %}
+            <button title="Next run" id="increaseRunNmbrButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-right"></span></button>
+            {% endif %}
+
+            <button title="{% if PROJECTNAME == "History Mode" %}Latest run{% else %}Next unchecked run{% endif %}" id="increaseUncheckedRunNmbrButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-forward"></span></button>
+        </span>
+
+        <span class="input-group-btn">
+                <button id="setRunNmbrButton" class="btn btn-default" type="button">Go</button>
+
+                <button id="changeReferenceMode" class="btn btn-default" type="button" data-state="{{ REFERENCE_STATE }}">
+                  <span class="glyphicon" id="changeReferenceModeIcon"></span>
+                  <span id="changeReferenceModeText">Reference</span>
+                </button>
+
+                <button type="button" id="runInfo" class="btn btn-default" data-placement="bottom" data-toggle="popover" title="<b>Run Information</b>" data-content="">
+                  <span class="glyphicon glyphicon-info-sign"></span>
+                  <span>Run Information</span>
+                </button>
+
+            {% if PROJECTNAME == "Offline DQM" %}
+                <button type="button" class="btn btn-default">
+                  <span id="dqFlag">{{ DQ_FLAG }}</span>
+                </button>
+            {% endif %}
+        </span>
+    </div>
+</span>
+
+{% elif PROJECTNAME == "SimDQ" %}
+<form class="navbar-form navbar-left">
+    <!-- taken from offline dq, need to change run_nmbr etc-->
+    <div class="input-group">
+        <span class="input-group-addon">Request ID</span>
+        <span class="input-group-btn btn-group" role="group">
+            <button title="Oldest request" id="oldestRequest" class="btn btn-default" type="button"><span class="glyphicon glyphicon-backward"></span></button>
+            <button title="Previous request" id="decreaseRequestIdButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-left"></span></button>
+            <input type="text" id="runNmbrTextfield" class="form-control" value="{{ RUN_NMBR }}" style="width:120px">
+            <button title="Next run" id="increaseRequestIdButton" class="btn btn-default" type="button"><span class="glyphicon glyphicon-chevron-right"></span></button>
+            <button title="Latest request" id="latestRequest" class="btn btn-default" type="button"><span class="glyphicon glyphicon-forward"></span></button>
+
+        </span>
+    </div>
+    <!-- -->
+    <div class="input-group">
+        <span class="input-group-addon">Event Type</span>
+        <select id="evtSelect" class="form-control"></select>
+    </div>
+    <div class="input-group">
+        <span class="input-group-addon">File Type</span>
+        <select id="fileSelect" class="form-control">
+        </select>
+        <span class="input-group-btn">
+            <button id="setReqButton" class="btn btn-default" type="button">Go</button>
+            <button id="changeReferenceMode" class="btn btn-default" type="button" data-state="{{ REFERENCE_STATE }}">
+                <span class="glyphicon" id="changeReferenceModeIcon"></span>
+                <span id="changeReferenceModeText">Reference</span>
+            </button>
+            <button type="button" id="runInfo" class="btn btn-default" data-placement="bottom" data-toggle="popover" title="<b>Request Information</b>" data-content="">
+                <span class="glyphicon glyphicon-info-sign"></span>
+                <span>Request Information</span>
+            </button>
+        </span>
+    </div>
+</form>
+{% else %}
+
+
+{% if PROJECTNAME == "Online DQM" %}
+  <form class="navbar-form navbar-left">
+    <div class="input-group">
+        <select id="trend-duration-field" class="form-control">
+          <option value="600">Last 10 minutes</option>
+          <option value="7200">Last 2 hours</option>
+          <option value="86400">Last 24 hours</option>
+          <option value="604800">Last week</option>
+          <option value="2592000">Last month</option>
+          <option value="31536000">Last year</option>
+          <option value="315360000">Last 10 years</option>
+        </select>
+    </div>
+  </form>
+
+  <button id="pageRefresh" class="btn navbar-btn navbar-left btn-default" type="button">
+    <span id="refresh-icon" class="glyphicon glyphicon-play"></span>
+    <span id="refresh-text">Start refreshing</span>
+  </button>
+
+  <button type="button" id="runInfo" class="btn navbar-btn btn-default" data-placement="bottom" data-toggle="popover" title="<b>Run Information</b>" data-content="">
+    <span class="glyphicon glyphicon-info-sign"></span>
+    <span>Run Information</span>
+  </button>
+
+
+{% endif %}
+
+{% if PROJECTNAME != "DQ Trends" and PROJECTNAME != "Page Documentation"%}
+<form class="navbar-form navbar-left">
+    <div class="input-group">
+                <button id="changeReferenceMode" class="btn btn-default" type="button" data-state="{{ REFERENCE_STATE }}">
+                  <span class="glyphicon" id="changeReferenceModeIcon"></span>
+                  <span id="changeReferenceModeText">Reference</span>
+                </button>
+    </div>
+</form>
+{% elif PROJECTNAME == "DQ Trends" %}
+<form class="navbar-form navbar-left">
+<select id="source-type-field" class="form-control btn btn-default dropdown-toggle">
+    <option selected="selected" >Runs</option>
+    <option>Fills</option>
+</select>
+    <span>From</span>
+    <input type="text" id="runNmbrTextfieldFrom" class="form-control" value="{{ RUN_NMBR_FROM }}" style="width:120px">
+    <span>To</span>
+    <input type="text" id="runNmbrTextfieldTo" class="form-control" value="{{ RUN_NMBR_TO }}" style="width:120px">
+    <div class="input-group">
+        <button id="changeDisplayFillsMode" class="btn btn-default" type="button" data-state="{{ DISPLAYFILLS_STATE }}">
+          <span class="glyphicon" id="changeDisplayFillsModeIcon"></span>
+          <span id="changeDisplayFillsModeText">Show fills</span>
+        </button>
+</div>    
+</form>
+
+{% endif %}
+
+{% endif %}
+
+{% if PROJECTNAME != "Page Documentation" %}
+<div class="navbar-form navbar-left">
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Actions <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            {% if PROJECTNAME == "Offline DQM" %}
+                <li><a href="#" id="show_flag_modal1">Flag Run</a></li>
+                {% assets asset_name %}
+                <script type="module">
+                    import {show_flag_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#show_flag_modal1').addEventListener('click', show_flag_modal);
+                </script>
+                {% endassets %}
+                <li><a href="#" id="show_flag_modal2">Flag Run Range</a></li>
+                {% assets asset_name %}
+                <script type="module">
+                    import {show_range_flag_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#show_flag_modal2').addEventListener('click', show_range_flag_modal);
+                </script>
+                {% endassets %}
+                {% endif %}
+            {% if PROJECTNAME == "Offline DQM" %}
+                <li>
+                    <a href="#" id="update_reference_button">Update Reference</a>
+                </li>
+                {% assets asset_name %}  
+                <script type="module">
+                    import {update_reference_function} from "{{ ASSET_URL }}";
+                    document.querySelector('#update_reference_button').addEventListener('click', update_reference_function);
+                </script>
+                {% endassets %}
+            {% endif %}
+            {% if PROJECTNAME == "History Mode" or PROJECTNAME == "Online DQM" %}
+                <li><a href="#" id="compare_with_run">Compare with Run ...</a></li>
+                {% assets asset_name %}
+                <script type="module">
+                    import {compare_with_run} from "{{ ASSET_URL }}";            
+                    document.querySelector('#compare_with_run').addEventListener('click', compare_with_run);
+                </script>
+                {% endassets %}
+            {% endif %}
+            {% if PROJECTNAME == "History Mode" or PROJECTNAME == "Online DQM" %}
+                <li><a href="#" id="compare_with_fill">Compare with Fill ...</a></li>
+                {% assets asset_name %}
+                <script type="module">
+                    import {compare_with_fill} from "{{ ASSET_URL }}";            
+                    document.querySelector('#compare_with_fill').addEventListener('click', compare_with_fill);
+                </script>
+                {% endassets %}
+            {% endif %}
+         
+            <li>
+                <a href="https://gitlab.cern.ch/lhcb/Monet/-/issues" id="monetIssues" target="_blank">
+                <span>Report MONET problem</span>
+
+                </a>
+            </li>
+            <li>
+                <a href="https://lhcb-monitoring.docs.cern.ch/index.html" id="monetDoc" target="_blank">
+                    <span>Documentation</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% if PROJECTNAME != "SimDQ" %}
+        <span class="navbar-btn"><button type="button" class="btn btn-{{ run_problem_status.status }}" id="show_elog_modal1">Send to ELOG</button></span>
+        {% assets asset_name %}
+        <script type="module">
+            import {show_elog_modal} from "{{ ASSET_URL }}";            
+            document.querySelector('#show_elog_modal1').addEventListener('click', show_elog_modal);
+        </script>
+        {% endassets %}
+    {% endif %}
+</div>
+{% endif %}
+
+<form class="navbar-form navbar-left" id="statusForm" style="display: none">
+    <button id="statusIndicatorContainer" class="btn" type="button">
+        <span class="glyphicon" id="statusIndicatorIcon"></span>
+        <span id="statusIndicatorText"></span>
+    </button>
+</form>
+</span>
+</div>
+{% endblock %}
+
+{% block navsidebar %}
+<div style="height: 4px;"> &nbsp;
+</div>
+<div class="btn-group btn-group-justified">
+    <div class="btn-group">
+        <button type="button" onmousedown="event.preventDefault()" id="reloadTreeButton" class="btn btn-default btn-xs">Reload Tree</button>
+        {% assets asset_name %}
+        <script type="module">
+            import {reloadTree} from "{{ ASSET_URL }}";            
+            document.querySelector('#reloadTreeButton').addEventListener('click', reloadTree);
+        </script>
+        {% endassets %}
+    </div>
+</div>
+<div class="btn-group btn-group-justified">
+    <div class="btn-group">
+        <button type="button" onmousedown="event.preventDefault()" id="showPrevDashboard" class="btn btn-default btn-xs">Prev</button>
+        {% assets asset_name %}
+        <script type="module">
+            import {showPrevDashboard} from "{{ ASSET_URL }}";            
+            document.querySelector('#showPrevDashboard').addEventListener('click', showPrevDashboard);
+        </script>
+        {% endassets %}        
+    </div>
+    <div class="btn-group">
+        <button type="button" onmousedown="event.preventDefault()" id="showNextDashboard" class="btn btn-default btn-xs"> Next</button>
+        {% assets asset_name %}
+        <script type="module">
+            import {showNextDashboard} from "{{ ASSET_URL }}";            
+            document.querySelector('#showNextDashboard').addEventListener('click', showNextDashboard);
+        </script>
+        {% endassets %}
+    </div>
+</div>
+<div style="height: 4px;"> &nbsp;
+</div>
+
+<div class="menuContainer" {% if PROJECTNAME == "Offline DQM" or PROJECTNAME == "Offline DQM" %} style="height: 100% !important;" {% endif %}>
+    <div id="loading">Loading menu</div>
+    <div id="menuTree"></div>
+</div>
+
+
+{% if PROJECTNAME != "Offline DQM" and PROJECTNAME != "DQ Trends" and PROJECTNAME != "SimDQ" %}
+<div class="alarmContainer">
+    <div id="loadingAlarms">Loading alarms</div>
+    <div id="alarmTree"></div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block navtopbar %}
+    {{ list_link_tag('/', 'Offline') }}
+{% endblock %}
+
+{% block body %}
+{% endblock %}
+
+{% block maincontainer %}
+{% if PROJECTNAME != "Page Documentation" %}
+<div class="modal fade" id="elog-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" id="hide_elog_modal2"><span aria-hidden="true">&times;</span></button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {hide_elog_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#hide_elog_modal2').addEventListener('click', hide_elog_modal);
+                </script>    
+                {% endassets %}            
+                <h4 class="modal-title" id="myModalLabel">Send to ELOG</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="elog-logbook">Logbook</label>
+                        <select id="elog-logbook" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="elog-fullname">User name</label>
+                        <input type="text" class="form-control" id="elog-fullname" value="{{FULLNAME}}" disabled>
+                    </div>
+                    <div class="form-group" id="subsys-checkboxes"></div>
+                    <div class="form-group" id="level-checkboxes"></div>
+                    <div class="form-group">
+                        <label for="elog-subject">Subject (*)</label>
+                        <input type="text" class="form-control" id="elog-subject">
+
+                    </div>
+                    <div class="form-group">
+                        <label for="elog-text">Message text</label>
+                        <textarea class="form-control" id="elog-text" rows="10"></textarea>
+                    </div>
+                    {% if PROJECTNAME != "Offline DQM" and PROJECTNAME != "Offline DQM" and PROJECTNAME != "SimDQ" and PROJECTNAME != "Page Documentation" %}
+                    <div class="form-group">
+                        <input type="checkbox" id="problemdb-submit" /> Submit to ProblemDB
+                    </div>
+                    <div class="list-group">
+                        <label>ProblemDB Run issues</label>
+                            {% for issue in run_problem_status.issues %}
+                                <a href="{{ issue.url }}" target="_blank" class="list-group-item list-group-item-{{ issue.status }}">
+                                    {{ issue.summary }}
+                                </a>
+                            {% endfor %}
+                    </div>
+                    {% endif %}
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="hide_elog_modal3">Close</button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {hide_elog_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#hide_elog_modal3').addEventListener('click', hide_elog_modal);
+                  </script>  
+                {% endassets %}                
+                <button type="button" class="btn btn-primary" id="submit_to_elog4">Submit to ELOG</button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {submit_to_elog} from "{{ ASSET_URL }}";            
+                    document.querySelector('#submit_to_elog4').addEventListener('click', submit_to_elog);
+                </script>
+                {% endassets %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if PROJECTNAME == "Offline DQM" %}
+<div class="modal fade" id="flag-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="flag-select-modal">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" id="hide_flag_modal1"><span aria-hidden="true">&times;</span></button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {hide_flag_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#hide_flag_modal1').addEventListener('click', hide_flag_modal);
+                </script> 
+                {% endassets %}
+                <h4 class="modal-title" id="myModalLabel">Set Run Flag</h4>
+            </div>
+            <div class="modal-body">
+                <form class="">
+                    <div class="form-group">
+                        <label for="run-tag">Run flag (CONDITIONAL flag to be set by experts only)</label>
+                        <select id="run-tag" class="form-control">
+                            <option>OK</option>
+                            <option>BAD</option>
+                            <option>CONDITIONAL</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="run-smog-tag">Flag for SMOG2 (optional, to be set by experts only)</label>
+                        <select id="run-smog-tag" class="form-control">
+                            <option></option>
+                            <option>OK</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="flag-elog-comment">ELOG submission comment (optional)</label>
+                        <textarea class="form-control" id="flag-elog-comment" rows="5"></textarea>
+                    </div>
+                    <div class="form-group" id="problematic-pages-div">
+                        <label for="flag-problematic-pages">Problematic pages (optional)</label>
+                        <textarea class="form-control" id="flag-problematic-pages" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="hide_flag_modal2">Close</button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {hide_flag_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#hide_flag_modal2').addEventListener('click', hide_flag_modal);
+                </script>      
+                {% endassets %}           
+                <button type="button" class="btn btn-primary" id="submit_flag1">Submit</button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {submit_flag} from "{{ ASSET_URL }}";            
+                    document.querySelector('#submit_flag1').addEventListener('click', submit_flag);
+                </script> 
+                {% endassets %}
+            </div>
+        </div>
+        <div class="modal-content" id="flag-progress-modal" style="display: none">
+            <div class="modal-header" style="text-align: center">
+                <h2 class="modal-title" id="flag-progress-label"></h2>
+            </div>
+            <div class="modal-body" id="flag-progress-modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" id="flag-complete-btn" class="btn btn-success"">Close</button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {hide_flag_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#flag-complete-btn').addEventListener('click', hide_flag_modal);
+                </script>  
+                {% endassets %}               
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="flag-range-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Flags in Run Range</h5>
+                <button type="button" class="close" aria-label="Close" id="hide_flag_range_modal_top">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {hide_flag_range_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#hide_flag_range_modal_top').addEventListener('click', hide_flag_range_modal);
+                </script> 
+                {% endassets %}
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">From</span>
+                        <input type="text" class="form-control" placeholder="run" id="flag_range_from">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">To</span>
+                        <input type="text" class="form-control" placeholder="run" id="flag_range_to">
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Actions <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" id="flag_range_all_ok_button">Flag all OK</a></li>
+                        {% assets asset_name %}
+                        <script type="module">
+                            import {flag_range_all_ok} from "{{ ASSET_URL }}";
+                            document.querySelector('#flag_range_all_ok_button').addEventListener('click', flag_range_all_ok);
+                        </script>
+                        {% endassets %}
+                        <li><a href="#" id="flag_range_all_bad_button">Flag all BAD</a></li>
+                        {% assets asset_name %}
+                        <script type="module">
+                            import {flag_range_all_bad} from "{{ ASSET_URL }}";
+                            document.querySelector('#flag_range_all_bad_button').addEventListener('click', flag_range_all_bad);
+                        </script>
+                        {% endassets %}
+                        <li><a href="#" id="flag_range_all_conditional_button">Flag all CONDITIONAL (experts only)</a></li>
+                        {% assets asset_name %}
+                        <script type="module">
+                            import {flag_range_all_conditional} from "{{ ASSET_URL }}";
+                            document.querySelector('#flag_range_all_conditional_button').addEventListener('click', flag_range_all_conditional);
+                        </script>
+                        {% endassets %}
+                        <li><a href="#" id="flag_range_all_smog2ok_button">Flag all SMOG2 OK (experts only)</a></li>
+                        {% assets asset_name %}
+                        <script type="module">
+                            import {flag_range_all_smog2ok} from "{{ ASSET_URL }}";
+                            document.querySelector('#flag_range_all_smog2ok_button').addEventListener('click', flag_range_all_smog2ok);
+                        </script>
+                        {% endassets %}
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#" id="flag_range_fill_table">Fill table</a></li>
+                        {% assets asset_name %}
+                        <script type="module">
+                            import {flag_range_fill_table} from "{{ ASSET_URL }}";
+                            document.querySelector('#flag_range_fill_table').addEventListener('click', flag_range_fill_table);
+                        </script>
+                        {% endassets %}
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-body" id="flag_range_table"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="hide_flag_range_modal">Close</button>
+                {% assets asset_name %}
+                <script type="module">
+                    import {hide_flag_range_modal} from "{{ ASSET_URL }}";            
+                    document.querySelector('#hide_flag_range_modal').addEventListener('click', hide_flag_range_modal);
+                </script>      
+                {% endassets %}           
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script type="text/javascript">
+    $('[data-toggle="popover"]').popover({
+        html: true,
+        container: 'body'
+    });
+</script>
+{% endblock %}

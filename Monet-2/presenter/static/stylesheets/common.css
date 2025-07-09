@@ -1,0 +1,78 @@
+.invisible {
+  display: none;
+}
+
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
+}
+
+.histoTitle {
+  text-align: center;
+  font-weight: bold;
+}
+
+.svg-canvas {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.menuContainer {
+  width: 100%;
+  height: 60%;
+  overflow: auto;
+}
+
+.alarmContainer {
+  width: 100%;
+  height: 40%;
+  overflow: auto;
+  padding-bottom: 300px;
+}
+
+.jstree {
+  font-size: 11px !important;
+}
+
+.jstree-node {
+  margin-left: 9px !important;
+}
+
+.jstree-icon {
+  width: 16px !important;
+}
+
+.histo-err {
+  background-color: #fff;
+  border: 2px solid red;
+  font-family: monospace;
+  width: 100%;
+  height: 100%;
+}
+
+.alarmContainer {
+  margin-top: 10px;
+}
+
+#pagedocs {
+  float: right;
+}
+
+.files-used {
+  font-family: monospace;
+}
+
+.jstree-closed > a > i:before {
+  content: "\e117";
+}
+
+.jstree-open > a > i:before {
+  content: "\e118";
+}

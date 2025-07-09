@@ -1,0 +1,32 @@
+###############################################################################
+# (c) Copyright 2018-2020 CERN for the benefit of the LHCb Collaboration      #
+#                                                                             #
+# This software is distributed under the terms of the GNU General Public      #
+# Licence version 3 (GPL Version 3), copied verbatim in the file "COPYING".   #
+#                                                                             #
+# In applying this licence, CERN does not waive the privileges and immunities #
+# granted to it by virtue of its status as an Intergovernmental Organization  #
+# or submit itself to any jurisdiction.                                       #
+###############################################################################
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+
+stages:
+  - build
+
+build_image:
+  stage: build
+  tags:
+    - docker-privileged-xl
+  image: 
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "gitlab-registry.cern.ch/lhcb/monet:${CI_COMMIT_TAG}"
+      --build-arg HISTOYML_USER_TOKEN=${HISTOYML_USER_TOKEN} 
+      --build-arg CI_JOB_TOKEN=${CI_JOB_TOKEN}
+

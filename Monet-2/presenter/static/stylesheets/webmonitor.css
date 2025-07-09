@@ -1,0 +1,220 @@
+.navbar {
+  margin-bottom: 0;
+}
+
+.nav-sidebar > li > a {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.nav-sidebar .active a {
+  background-color: #428bca;
+  color: #fff;
+}
+
+.nav-sidebar .active a:hover {
+  background-color: #2972b1;
+}
+
+.main {
+  padding: 10px 20px;
+}
+
+.main > h1:first-child {
+  margin-top: 0;
+}
+
+.overview-table td, .overview-table th {
+  text-align: center;
+}
+
+.overview-table td:last-child {
+  text-align: left;
+}
+
+.histogram {
+  height: 250px;
+  margin: 40px 0;
+}
+
+.trends-vs-selector {
+  padding-top: 20px;
+  text-align: center;
+}
+
+.run-range-form {
+  padding: 20px 0;
+}
+
+.run-range-form p {
+  margin-top: 4px;
+}
+
+.trend-indicators p {
+  margin-top: 10px;
+}
+
+.input-daterange {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Histogram line areas */
+.line {
+  shape-rendering: crispEdges;
+}
+
+/* Points */
+.data-point {
+  fill: #000;
+}
+
+/* Error bars */
+.data-error {
+  stroke-width: 1px;
+  stroke: #000;
+}
+
+/* Axes */
+path.domain {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+
+.axis .tick line {
+  stroke: #000;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  fill: #222;
+}
+
+.grid {
+  fill: none;
+  stroke: #e0e0e0;
+  shape-rendering: crispEdges;
+}
+
+.axis-label {
+  font-size: 0.9em;
+}
+
+/* Brush, i.e. zoom box */
+.brush .extent {
+  fill: #000;
+  fill-opacity: 0.125;
+  stroke: #000;
+  stroke-opacity: 0.2;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+
+/* 'Clear zoom' text */
+.clear-button {
+  cursor: pointer;
+}
+
+.clear-button rect {
+  fill: #eee;
+  stroke: #000;
+  stroke-width: 1px;
+  stroke-opacity: 0.125;
+  border-radius: 2px;
+}
+
+.clear-button:hover rect {
+  fill: #e4e4e4;
+}
+
+.clear-button:active rect {
+  fill: #ddd;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: block;
+  padding: 70px 10px 20px;
+  border-right: 1px solid #eee;
+  background-color: #f5f5f5;
+}
+
+.nav-sidebar {
+  margin-left: -20px;
+  /* 20px padding + 1px border */
+  margin-right: -21px;
+  margin-bottom: 20px;
+}
+
+.main {
+  padding: 20px 40px;
+  position: absolute;
+  height: 100%;
+}
+
+.histogram {
+  height: 400px;
+  margin: 0 0 10px 0;
+  padding: 0 10px;
+}
+
+/* Vertically center the label */
+.run-range-form label {
+  margin-top: 4px;
+}
+
+.input-daterange {
+  margin-bottom: 0px;
+}
+
+.elog-subsys {
+  margin-left: 15px;
+  font-weight: normal;
+}
+
+.information-panel {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  right: 0px;
+  left: 0;
+  margin: 0px;
+}
+
+.information-panel .panel-heading {
+  text-align: center;
+}
+
+.information-panel #collapsed_page_info {
+  max-height: 200px;
+  overflow: scroll;
+}
+
+.information-panel .panel-title a:before,
+.information-panel .panel-title a:after {
+  content:"\e114";
+  font-family: 'Glyphicons Halflings';
+  font-size: 10px;
+  margin: 5px;
+}
+
+.information-panel .panel-title a.collapsed:before,
+.information-panel .panel-title a.collapsed:after {
+  content:"\e113";
+}
+
+div#svg-canvas {
+  position: absolute;
+  overflow: scroll;
+  top: 103px;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+}
