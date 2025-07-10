@@ -1,14 +1,5 @@
 """Interface functions to the monitoring hub"""
-###############################################################################
-# (c) Copyright 2000-2020 CERN for the benefit of the LHCb Collaboration      #
-#                                                                             #
-# This software is distributed under the terms of the GNU General Public      #
-# Licence version 3 (GPL Version 3), copied verbatim in the file "COPYING".   #
-#                                                                             #
-# In applying this licence, CERN does not waive the privileges and immunities #
-# granted to it by virtue of its status as an Intergovernmental Organization  #
-# or submit itself to any jurisdiction.                                       #
-###############################################################################
+
 
 import bz2
 import copy
@@ -166,7 +157,7 @@ def monitoringhub_get_saveset_partitions(hub_configuration, the_path):
             logging.error("Error when searching for saveset partition, set it to LHCb")
             return list(["LHCb"])
         except urllib3.exceptions.MaxRetryError:
-            logging.error("Max retry error: %s, %s, %s, %s", source)
+            logging.error(f"Max retry error: {source}")
             return list(["LHCb"])
     return list([])
 
