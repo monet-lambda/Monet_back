@@ -1,5 +1,5 @@
-docker-compose-debug.yml
-configs/monet.cfg
+# docker-compose-debug.yml
+# configs/monet.cfg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -23,14 +23,14 @@ dqdb/database/dqdb.db
 alarmsdb/
 hist/
 config_unicorn_local.py
-presenter/static/javascripts/gen/
-presenter/static/stylesheets/gen/packed_common.css
-presenter/static/stylesheets/gen/packed_history_dq.css
-presenter/static/stylesheets/gen/packed_layout.css
-presenter/static/stylesheets/gen/packed_online_dq.css
-presenter/static/stylesheets/gen/packed_offline_dq.css
-presenter/static/stylesheets/gen/packed_sim_dq.css
-presenter/static/stylesheets/gen/packed_trend_dq.css
+# presenter/static/javascripts/gen/
+# presenter/static/stylesheets/gen/packed_common.css
+# presenter/static/stylesheets/gen/packed_history_dq.css
+# presenter/static/stylesheets/gen/packed_layout.css
+# presenter/static/stylesheets/gen/packed_online_dq.css
+# presenter/static/stylesheets/gen/packed_offline_dq.css
+# presenter/static/stylesheets/gen/packed_sim_dq.css
+# presenter/static/stylesheets/gen/packed_trend_dq.css
 presenter/static/.webassets-cache
 sessions/*.tcl
 .vscode/settings.json
