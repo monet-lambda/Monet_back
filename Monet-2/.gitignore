@@ -9,7 +9,7 @@ __pycache__/
 
 git.lock
 keycloak.json
-configs/monet.cfg
+# configs/monet.cfg
 sessions/*options.tcl.lock
 sessions/*Tree.tcl.lock
 profiler/
