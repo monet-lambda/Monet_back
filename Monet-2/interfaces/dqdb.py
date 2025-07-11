@@ -29,6 +29,7 @@ def create_monet_user() -> bool:
         bool: False if there was an error, True otherwise
     """
     try:
+        print("!!!!!!!!!", current_app.config.get("DQDB_ADMIN_USER", "admin"), current_app.config.get("DQDB_ADMIN_PASSWORD", ""))
         cnx = mysql.connector.connect(
             user=current_app.config.get("DQDB_ADMIN_USER", "admin"),
             password=current_app.config.get("DQDB_ADMIN_PASSWORD", ""),
@@ -41,7 +42,7 @@ def create_monet_user() -> bool:
         )
         create_user = (
             "CREATE USER IF NOT EXISTS "
-            f"{current_app.config.get('DQDB_USER', 'monet')}"
+            f"'{current_app.config.get('DQDB_USER', 'monet')}'@'%' "
             f"IDENTIFIED BY '{current_app.config.get('DQDB_PASSWORD', '')}'"
         )
         set_permissions = (

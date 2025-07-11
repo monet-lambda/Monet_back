@@ -1,0 +1,15 @@
+services:
+  dqdb:
+    image: mysql:8
+    restart: unless-stopped
+    ports:
+      - "5501:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: dqdb
+      MYSQL_USER: monet
+      MYSQL_PASSWORD: monetpass
+    volumes:
+      - dqdb_data:/var/lib/mysql
+volumes:
+  dqdb_data:

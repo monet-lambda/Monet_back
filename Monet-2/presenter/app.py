@@ -236,27 +236,13 @@ logging.getLogger("sh").setLevel(sh_log_level)
 logging.getLogger("filelock").setLevel(log_level)
 logging.getLogger("werkzeug").setLevel(log_level)
 
-oauth = OAuth(app)
-oauth.register(
-    name="CERN",
-    server_metadata_url=("https://auth.cern.ch/auth/realms/cern/"
-    ".well-known/openid-configuration"),
-    client_kwargs={"scope": "openid profile email"},
-)
+
+# oauth = OAuth(app)
+# oauth.register()
 
 
 @app.route("/login")
 def login():
-    """Login function
-
-    Calls the CERN SSO login infrastructure
-
-    Returns:
-        A HTTP redirect response
-    """
-    # redirect_uri = url_for("auth", _external=True)
-    # return oauth.CERN.authorize_redirect(redirect_uri)
-    """DEV-заглушка входа без CERN"""
     logging.warning("Bypassing CERN SSO in /login")
     session['user'] = {
         "name": "Dev User",
@@ -269,37 +255,16 @@ def login():
 
 @app.route("/auth")
 def auth() -> Response:
-    """Authenticate via CERN SSO
+    session.pop("user", None)
+    return edirect("/")
 
-    Returns:
-        Response: A HTTP redirect response
-    """
-    try:
-        token = oauth.CERN.authorize_access_token()
-        user = oauth.CERN.userinfo(token=token)
-    except Exception:
-        logging.error("Error in authentication")
-        # Logout
-        logout_url = ("https://auth.cern.ch/auth/realms/cern/"
-        "protocol/openid-connect/logout")
-        session.pop("user", None)
-        return redirect(f"{logout_url}?client_id={{app.config.get('CERN_CLIENT_ID')}}")
-    session["user"] = user
-    return redirect("/")
 
 
 @app.route("/logout")
 @requires_auth
 def logout() -> Response:
-    """Logout from CERN SSO
-
-    Returns:
-        Response: A HTTP redirect response
-    """
-    logout_url = ("https://auth.cern.ch/auth/realms/cern/"
-    "protocol/openid-connect/logout")
     session.pop("user", None)
-    return redirect(f"{logout_url}?client_id={{app.config.get('CERN_CLIENT_ID')}}")
+    return redirect("/")
 
 
 @app.route("/api/git_update", methods=["POST"])
