@@ -7,6 +7,7 @@ The main file for MONET Flask application
 import logging
 import subprocess
 import os
+import importlib.util
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -22,9 +23,22 @@ from flask import (
     session,
     url_for,
 )
+
 from presenter.cache import cache
 
-app = Flask(__name__)
+# Load configuration early to know where static assets are stored
+config_path = os.environ.get("MONET_CONFIG")
+static_dir = None
+if config_path and os.path.exists(config_path):
+    spec = importlib.util.spec_from_file_location("config", config_path)
+    _cfg = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(_cfg)
+    static_dir = getattr(_cfg, "ASSETS_DIRECTORY", None)
+
+if static_dir:
+    app = Flask(__name__, static_folder=static_dir)
+else:
+    app = Flask(__name__)
 
 app.config.from_envvar("MONET_CONFIG")
 app.config['CACHE_TYPE'] = 'SimpleCache'
